@@ -61,6 +61,7 @@ funcptr PrePostChecker_vtable[] =
 };
 funcptr Multiplier_vtable[] =
 {
+	(funcptr)_ZN10MultiplierD1Ev,
 	(funcptr)_ZNK10Multiplier5printEPKc
 };
 void _ZN13TextFormatterD0Ev(const TextFormatter *const this)
