@@ -2,6 +2,7 @@
 #include "malloc.h"
 #include "cpp2c_polymorphism_defs.h"
 
+extern funcptr Multiplier_vtable[];
 
 void doPrePostFixer()
 {
@@ -37,6 +38,7 @@ void doPrePostChecker()
 	PrePostChecker check;
     	printf("\n--- start doPrePostChecker() ---\n\n");
 
+	_ZN14PrePostCheckerC1Ev(&check);
     	_ZNK14PrePostChecker24printThisSymbolUsingFuncEv(&check);
     	_ZNK14PrePostChecker23printThisSymbolDirectlyEv(&check);
     	_ZNK14PrePostChecker31printDollarSymbolByCastDirectlyEv(&check);
@@ -45,6 +47,7 @@ void doPrePostChecker()
     	_ZNK14PrePostChecker33printDollarSymbolByScopeUsingFuncEv(&check);
 
     	printf("\n--- end doPrePostChecker() ---\n\n");
+	_ZN14PrePostCheckerD1Ev(&check);
 }
 
 void doPrePostFloatDollarFixer()
@@ -54,11 +57,11 @@ void doPrePostFloatDollarFixer()
     	printf("\n--- start doPrePostFloatDollarFixer() ---\n\n");
 
     	_ZN23PrePostFloatDollarFixerC1EPKcS1_(&hashes, "### ", " ###");
-    	_ZNK18PrePostDollarFixer5printEic(&(hashes.prePostDollarFixer), -777, '$');
-    	_ZNK18PrePostDollarFixer5printEic(&(hashes.prePostDollarFixer), 350, '#');
-    	_ZNK18PrePostDollarFixer5printEdc(&(hashes.prePostDollarFixer), 3.14f, '$');
+    	_ZNK23PrePostFloatDollarFixer5printEf(&hashes, -777);
+    	_ZNK23PrePostFloatDollarFixer5printEfc(&hashes, 350, '#');
+    	_ZNK23PrePostFloatDollarFixer5printEf(&hashes, 3.14f);
 
-    	_ZN18PrePostDollarFixerC1ERKS_(&hashes2, &(hashes.prePostDollarFixer));
+    	_ZN18PrePostDollarFixerC1ERKS_(&hashes2, (PrePostDollarFixer*)&hashes);
    	_ZNK18PrePostDollarFixer5printEdc(&hashes2, 7.5, '$');
     	_ZNK18PrePostDollarFixer5printEic(&hashes2, 100, '$');
 
@@ -66,21 +69,21 @@ void doPrePostFloatDollarFixer()
 	_ZN18PrePostDollarFixerD1Ev(&hashes2);
 	_ZN23PrePostFloatDollarFixerD1Ev(&hashes);
 }
-/*
-void runAsPrePostFixerRef(const PrePostFixer& pp)
+
+void runAsPrePostFixerRef(const PrePostFixer* pp)
 {
     	printf("\n--- start runAsPrePostFixerRef() ---\n\n");
 
-    	pp.print(123);
+    	(pp->defaultTextFormatter.textFormatter.vptr[2])(pp, 123, '\0');
 
     	printf("\n--- end runAsPrePostFixerRef() ---\n\n");
 }
 
-void runAsPrePostDollarFixerRef(const PrePostDollarFixer& pp)
+void runAsPrePostDollarFixerRef(const PrePostDollarFixer* pp)
 {
     	printf("\n--- start runAsPrePostDollarFixerRef() ---\n\n");
 
-    	pp.print(123);
+    	_ZNK18PrePostDollarFixer5printEic(pp, 123, '$');
 
     	printf("\n--- end runAsPrePostDollarFixerRef() ---\n\n");
 }
@@ -89,20 +92,19 @@ void runAsPrePostDollarFixerObj(const PrePostDollarFixer pp)
 {
     	printf("\n--- start runAsPrePostDollarFixerObj() ---\n\n");
 
-    	pp.print(123);
+    	_ZNK18PrePostDollarFixer5printEic(&pp, 123, '$');
 
     	printf("\n--- end runAsPrePostDollarFixerObj() ---\n\n");
 }
 
-void runAsPrePostHashFixerRef(const PrePostHashFixer& pp)
+void runAsPrePostHashFixerRef(const PrePostHashFixer* pp)
 {
     	printf("\n--- start runAsPrePostHashFixerRef() ---\n\n");
 
-    	pp.print(123);
+    	_ZNK16PrePostHashFixer5printEic(pp, 123, '#');
 
     	printf("\n--- end runAsPrePostHashFixerRef() ---\n\n");
-}*/
-
+}
 void doMultiplier()
 {
 	Multiplier m1;
@@ -111,88 +113,122 @@ void doMultiplier()
     	Multiplier m4;
     	printf("\n--- start doMultiplier() ---\n\n");
 	
-	_ZN20DefaultTextFormatterC1ERKS_(&m1);
+	_ZN20DefaultTextFormatterC1ERKS_((DefaultTextFormatter*)&m1);
+	m1.defaultTextFormatter.textFormatter.vptr = Multiplier_vtable; 
     	m1.times = 3;
 	printf("--- Multiplier CTOR: times = %d\n", m1.times);
-	_ZN20DefaultTextFormatterC1ERKS_(&m2);
+	_ZN20DefaultTextFormatterC1ERKS_((DefaultTextFormatter*)&m2);
+	m2.defaultTextFormatter.textFormatter.vptr = Multiplier_vtable;
     	m2.times = 5;
 	printf("--- Multiplier CTOR: times = %d\n", m2.times);
-    	m3 = m1;
-    	m4 = m2;
+	_ZN20DefaultTextFormatterC1Ev((DefaultTextFormatter*)&m3, (DefaultTextFormatter*)&m1);
+	m3.defaultTextFormatter.textFormatter.vptr = Multiplier_vtable;
+    	m3.times = m1.times;
+	_ZN20DefaultTextFormatterC1Ev((DefaultTextFormatter*)&m4, (DefaultTextFormatter*)&m2);
+    	m4.defaultTextFormatter.textFormatter.vptr = Multiplier_vtable;
+    	m4.times = m2.times;
 
-    	/*.print(&m1, "abc ");
-    	print(&m2, "abc ");
-    	m3.print(&m3, "abc ");
-    	m4.print(&m4, "abc ");*/
+    	 _ZNK10Multiplier5printEPKc(&m1, "abc ");
+    	 _ZNK10Multiplier5printEPKc(&m2, "abc ");
+    	 _ZNK10Multiplier5printEPKc(&m3, "abc ");
+    	 _ZNK10Multiplier5printEPKc(&m4, "abc ");
 
     	printf("\n--- start doMultiplier() ---\n\n");
 
-	printf("--- Multiplier DTOR: times = %d\n", m4.times);
-	printf("--- Multiplier DTOR: times = %d\n", m3.times);
-	printf("--- Multiplier DTOR: times = %d\n", m2.times);
-	printf("--- Multiplier DTOR: times = %d\n", m1.times);
+	_ZN10MultiplierD1Ev(&m4);
+	_ZN10MultiplierD1Ev(&m3);
+	_ZN10MultiplierD1Ev(&m2);
+	_ZN10MultiplierD1Ev(&m1);
 }
-/*
+
 void doFormatterArray()
 {
+	DefaultTextFormatter formatters[3];
+	PrePostDollarFixer prePostDollarFixer;
+	Multiplier multiplier;
+	PrePostChecker prePostChecker;
+	int i;
     	printf("\n--- start doFormatterArray() ---\n\n");
 
-    	DefaultTextFormatter formatters[] =
-    	{
-        	PrePostDollarFixer("!!! ", " !!!"),
-        	Multiplier(4),
-        	PrePostChecker()
-    	};
+	_ZN18PrePostDollarFixerC1EPKcS1_(&prePostDollarFixer, "!!! ", " !!!");
+	_ZN20DefaultTextFormatterC1Ev(&formatters[0], (DefaultTextFormatter*)&prePostDollarFixer);
+	_ZN18PrePostDollarFixerD1Ev(&prePostDollarFixer);
+	
+	_ZN20DefaultTextFormatterC1ERKS_((DefaultTextFormatter*)&multiplier);
+	multiplier.defaultTextFormatter.textFormatter.vptr = Multiplier_vtable; 
+	multiplier.times = 4;
+    	printf("--- Multiplier CTOR: times = %d\n", multiplier.times);
+	_ZN20DefaultTextFormatterC1Ev(&formatters[1], (DefaultTextFormatter*)&multiplier);
+	_ZN10MultiplierD1Ev(&multiplier);
 
-    	for (int i = 0; i < 3; ++i)
-        	formatters[i].print("Hello World!");
+	 _ZN14PrePostCheckerC1Ev(&prePostChecker);
+	_ZN20DefaultTextFormatterC1Ev(&formatters[2], (DefaultTextFormatter*)&prePostChecker);
+	_ZN14PrePostCheckerD1Ev(&prePostChecker);
 
+    	for (i = 0; i < 3; ++i)
+        	_ZNK20DefaultTextFormatter5printEPKc(&formatters[i], "Hello World!");
+	
     	printf("\n--- end doFormatterArray() ---\n\n");
+
+
+	for(i = 2; i >= 0; i--)
+		_ZN20DefaultTextFormatterD1Ev(&(formatters[i]));
 }
 
 void doFormatterPtrs()
 {
+	DefaultTextFormatter *pfmt[3];
+	int i;
     	printf("\n--- start doFormatterPtrs() ---\n\n");
+	
+    	pfmt[0] = malloc(sizeof(PrePostDollarFixer));
+	_ZN18PrePostDollarFixerC1EPKcS1_((PrePostDollarFixer*)pfmt[0], "!!! ", " !!!");
+	pfmt[1] = malloc(sizeof(Multiplier));
+	_ZN20DefaultTextFormatterC1ERKS_((DefaultTextFormatter*)pfmt[1]);
+	((Multiplier*)pfmt[1])-> defaultTextFormatter.textFormatter.vptr = Multiplier_vtable; 
+	((Multiplier*)pfmt[1])->times = 4;
+    	printf("--- Multiplier CTOR: times = %d\n", ((Multiplier*)pfmt[1])->times);
 
-    	DefaultTextFormatter* pfmt[] =
-    	{
-        	new PrePostDollarFixer("!!! ", " !!!"),
-        	new Multiplier(4),
-        	new PrePostChecker()
-    	};
+	pfmt[2] = malloc(sizeof(PrePostChecker));
+	 _ZN14PrePostCheckerC1Ev((PrePostChecker*)pfmt[2]);
 
-    	for (int i = 0; i < 3; ++i)
-        	pfmt[i]->print("Hello World!");
+    	for (i = 0; i < 3; ++i)
+        	(pfmt[i]->textFormatter.vptr[1])(pfmt[i], "Hello World!");
 
-    	for (int i = 2; i >= 0; --i)
-        	delete pfmt[i];
-
+    	for (i = 2; i >= 0; i--)
+        {
+		(pfmt[i]->textFormatter.vptr[0])(pfmt[i]);
+		free(pfmt[i]);
+		pfmt[i] = NULL;
+	}
     	printf("\n--- end doFormatterPtrs() ---\n\n");
-}*/
+}
 
 void doFormatterDynamicArray()
 {
-	DefaultTextFormatter* formatters =  _Z22generateFormatterArrayv();
+	DefaultTextFormatter *formatters;
+	int i;
     	printf("\n--- start doFormatterDynamicArray() ---\n\n");
+	formatters = _Z22generateFormatterArrayv();
 
-    
-    	for (int i = 0; i < 3; ++i)
+    	for (i = 0; i < 3; ++i)
 	{
-		_ZN20DefaultTextFormatterC1ERKS_(&formatters[i]);
-        	(formatters[i].textFormatter.vptr[1])(&formatters[i], "Hello World!");
+        	formatters[i].textFormatter.vptr[1](&formatters[i], "Hello World!");
 	}
-	for (int i = 0; i < 3; ++i)
+	for (i = 2; i >= 0; i--)
         {
-		_ZN20DefaultTextFormatterD1Ev(&formatters[i]);
-    		//free(formatters);
-		//formatters = NULL;
+		formatters[i].textFormatter.vptr[0](&formatters[i]);
 	}
 
+	free(formatters);
+	formatters = NULL;
     	printf("\n--- start doFormatterDynamicArray() ---\n\n");
 }
 
 int main()
 {
+	PrePostHashFixer hfix;
+	PrePostDollarFixer copy;
     	printf("\n--- Start main() ---\n\n");
 
     	doPrePostFixer();
@@ -200,19 +236,23 @@ int main()
    	doPrePostFloatDollarFixer();
     	doPrePostChecker();
 
-    	/*PrePostHashFixer hfix;
-    	runAsPrePostFixerRef(hfix);
-    	runAsPrePostDollarFixerRef(hfix);
-    	runAsPrePostDollarFixerObj(hfix);
-    	runAsPrePostHashFixerRef(hfix);
+	_ZN16PrePostHashFixerC1Ei(&hfix, 4);
+    	runAsPrePostFixerRef((PrePostFixer*)&hfix);
+    	runAsPrePostDollarFixerRef((PrePostDollarFixer*)&hfix);
+	_ZN18PrePostDollarFixerC1ERKS_(&copy, (PrePostDollarFixer*)&hfix);
+    	runAsPrePostDollarFixerObj(copy);
+	_ZN18PrePostDollarFixerD1Ev(&copy);
+    	runAsPrePostHashFixerRef((PrePostHashFixer*)&hfix);
 
     	doMultiplier();
 
     	doFormatterArray();
-    	doFormatterPtrs();*/
+    	doFormatterPtrs();
     	doFormatterDynamicArray();
 
     	printf("\n--- End main() ---\n\n");
+
+	_ZN16PrePostHashFixerD1Ev(&hfix);
 
     	return 0;
 }

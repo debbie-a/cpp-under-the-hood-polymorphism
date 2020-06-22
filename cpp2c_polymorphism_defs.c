@@ -102,7 +102,11 @@ void _ZNK20DefaultTextFormatter5printEPKc(const DefaultTextFormatter *const this
 
 DefaultTextFormatter* _Z22generateFormatterArrayv()
 {
-    	return malloc(sizeof(DefaultTextFormatter)*3);
+	DefaultTextFormatter *tmp = malloc(sizeof(DefaultTextFormatter)*3);
+	int i;
+	for(i = 0; i < 3; i++)
+		_ZN20DefaultTextFormatterC1ERKS_(&tmp[i]);
+    	return tmp;
 }
 
 /* PrePostFixer Defs */
@@ -162,7 +166,10 @@ void _ZN18PrePostDollarFixerC1EPKcS1_(PrePostDollarFixer *const this, const char
 
 void _ZN18PrePostDollarFixerC1ERKS_(PrePostDollarFixer *const this, const PrePostDollarFixer *const other)
 {
-	_ZN12PrePostFixerC1EPKcS1_((PrePostFixer*)this, other->prePostFixer.pre, other->prePostFixer.post);
+	_ZN20DefaultTextFormatterC1Ev((DefaultTextFormatter*)this, (DefaultTextFormatter*)other);
+	this->prePostFixer.defaultTextFormatter.textFormatter.vptr = PrePostFixer_vtable;
+	this->prePostFixer.pre = other->prePostFixer.pre;
+	this->prePostFixer.post = other->prePostFixer.post;
 	this->prePostFixer.defaultTextFormatter.textFormatter.vptr = PrePostDollarFixer_vtable;
     	printf("--- PrePostDollarFixer Copy CTOR: \"%s\"...\"%s\"\n", this->prePostFixer.pre, this->prePostFixer.post);
 }
@@ -186,7 +193,7 @@ void _ZNK18PrePostDollarFixer5printElc(const PrePostDollarFixer *const this, lon
 {
     	printf("%-60s | ", "[PrePostDollarFixer::print(long, char)]");
     	printf("-->\n");
-    	_ZNK18PrePostDollarFixer5printEdc((PrePostDollarFixer*)this, num, symbol);
+    	_ZNK12PrePostFixer5printElc((PrePostFixer*)this, num, symbol);
 }
 
 void _ZNK18PrePostDollarFixer5printEdc(const PrePostDollarFixer *const this, double num, char symbol)
@@ -210,7 +217,9 @@ void _ZN16PrePostHashFixerC1Ei(PrePostHashFixer *const this, int prc)
 	this->precision = prc;
     	printf("--- PrePostHashFixer CTOR: \"%s\"...\"%s\", precision: %d\n", this->prePostDollarFixer.prePostFixer.pre, this->prePostDollarFixer.prePostFixer.post, this->precision);   
 
-    	_ZNK16PrePostHashFixer5printElc(this, 9999.9999, '#');
+	printf("%-60s | ","[PrePostHashFixer::print(double, char)]"); 
+
+    	printf("%s[%c%.*f]%s\n", this->prePostDollarFixer.prePostFixer.pre, '#', this->precision, 9999.9999, this->prePostDollarFixer.prePostFixer.post);
 }
 
 void _ZN16PrePostHashFixerD1Ev(PrePostHashFixer *const this)
@@ -225,9 +234,9 @@ void _ZNK16PrePostHashFixer5printEic(const PrePostHashFixer *const this, int num
     	printf("%-60s | ","[PrePostHashFixer::print(int, char)]"); 
     	printf("-->\n");
 
-    	printf("%-60s | ", "[PrePostHashFixer::print(double, char)]"); 
+    	printf("%-60s | ","[PrePostHashFixer::print(double, char)]"); 
 
-    	printf("%s[%c%.*f]%s\n", this->prePostDollarFixer.prePostFixer.pre, symbol, this->precision, (double)num,  this->prePostDollarFixer.prePostFixer.post);
+    	printf("%s[%c%.*f]%s\n", this->prePostDollarFixer.prePostFixer.pre, symbol, this->precision, (double)num, this->prePostDollarFixer.prePostFixer.post);
 }
 
 void _ZNK16PrePostHashFixer5printElc(const PrePostHashFixer *const this, long num, char symbol)
@@ -235,15 +244,9 @@ void _ZNK16PrePostHashFixer5printElc(const PrePostHashFixer *const this, long nu
     	printf("%-60s | ","[PrePostHashFixer::print(long, char)]"); 
     	printf("-->\n");
 
-    	printf("%-60s | ", "[PrePostHashFixer::print(double, char)]"); 
-
-    	printf("%s[%c%.*f]%s\n", this->prePostDollarFixer.prePostFixer.pre, symbol, this->precision, (double)num,  this->prePostDollarFixer.prePostFixer.post);
-}
-void _ZNK16PrePostHashFixer5printEdc(const PrePostHashFixer *const this, double num, char symbol)
-{
     	printf("%-60s | ","[PrePostHashFixer::print(double, char)]"); 
 
-    	printf("%s[%c%.*f]%s\n", this->prePostDollarFixer.prePostFixer.pre, symbol, this->precision, num, this->prePostDollarFixer.prePostFixer.post);
+    	printf("%s[%c%.*f]%s\n", this->prePostDollarFixer.prePostFixer.pre, symbol, this->precision, (double)num, this->prePostDollarFixer.prePostFixer.post);
 }
 
 char _ZNK16PrePostHashFixer16getDefaultSymbolEv(const PrePostHashFixer *const this)
@@ -305,46 +308,46 @@ void _ZN14PrePostCheckerD1Ev(PrePostChecker *const this)
 
 void _ZNK14PrePostChecker24printThisSymbolUsingFuncEv(const PrePostChecker *const this)
 {
+	
     	printf("%-60s | ", "[PrePostChecker::printThisSymbolUsingFunc()]");
-    	//printf("Default symbol is %c\n", this->getDefaultSymbol());
+    	printf("Default symbol is %c\n", ((char(*)(const void* const))(this->prePostFloatDollarFixer.prePostDollarFixer.prePostFixer.defaultTextFormatter.textFormatter.vptr[3]))(this));
 }
 
 void _ZNK14PrePostChecker23printThisSymbolDirectlyEv(const PrePostChecker *const this)
 {
     	printf("%-60s | ", "[PrePostChecker::printThisSymbolDirectly()]");
 
-    	//printf("Default symbol is %c\n", this->DEFAULT_SYMBOL);
+    	printf("Default symbol is %c\n", DEFAULT_SYMBOL_FLOAT_DOLLAR);
 }
 
-void  _ZNK14PrePostChecker32printDollarSymbolByCastUsingFuncEv(const PrePostChecker *const this)
+void  _ZNK14PrePostChecker32printDollarSymbolByCastUsingFuncEv(PrePostChecker *const this)
 {
     	printf("%-60s | ", "[PrePostChecker::printDollarSymbolByCastUsingFunc()]");
-
-    	//printf("Default symbol is %c\n", ((PrePostDollarFixer*)(this))->getDefaultSymbol());
+	this->prePostFloatDollarFixer.prePostDollarFixer.prePostFixer.defaultTextFormatter.textFormatter.vptr = PrePostFloatDollarFixer_vtable;
+    	printf("Default symbol is %c\n", ((char(*)(const void* const))(this->prePostFloatDollarFixer.prePostDollarFixer.prePostFixer.defaultTextFormatter.textFormatter.vptr[3]))((PrePostFloatDollarFixer*)this));
+	this->prePostFloatDollarFixer.prePostDollarFixer.prePostFixer.defaultTextFormatter.textFormatter.vptr = PrePostChecker_vtable;
 }
 
 void _ZNK14PrePostChecker33printDollarSymbolByScopeUsingFuncEv(const PrePostChecker *const this)
 {
     	printf("%-60s | ", "[PrePostChecker::printDollarSymbolByScopeUsingFunc()]");
 
-    	//printf("Default symbol is %c\n", this->PrePostDollarFixer::getDefaultSymbol());
+    	printf("Default symbol is %c\n", _ZNK18PrePostDollarFixer16getDefaultSymbolEv((PrePostDollarFixer*)this));
 }
 
 void _ZNK14PrePostChecker31printDollarSymbolByCastDirectlyEv(const PrePostChecker *const this)
 {
     	printf("%-60s | ", "[PrePostChecker::printDollarSymbolByCastDirectly()]");
 
-    	//printf("Default symbol is %c\n", ((PrePostDollarFixer*)(this))->DEFAULT_SYMBOL);
+    	printf("Default symbol is %c\n", DEFAULT_SYMBOL_DOLLAR);
 }
-
 void _ZNK14PrePostChecker32printDollarSymbolByScopeDirectlyEv(const PrePostChecker *const this)
 {
     	printf("%-60s | ", "[PrePostChecker::printDollarSymbolByScopeDirectly()]");
 
-    	//printf("Default symbol is %c\n", this->PrePostDollarFixer::DEFAULT_SYMBOL);
+    	printf("Default symbol is %c\n", DEFAULT_SYMBOL_DOLLAR);
+
 }
-
-
 /* Multiplier Defs */
 
 void  _ZN10MultiplierD1Ev(Multiplier *const this)
@@ -356,9 +359,10 @@ void  _ZN10MultiplierD1Ev(Multiplier *const this)
 
 void _ZNK10Multiplier5printEPKc(const Multiplier *const this, const char* text)
 {
+	int i;
     	printf("%-60s | ", "[Multiplier::print(const char*)]");
     
-    	for (int i = 0; i < this->times; ++i)
+    	for (i = 0; i < this->times; ++i)
         	printf("%s", text);
     	printf("\n");
 }

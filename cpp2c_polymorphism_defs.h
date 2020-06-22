@@ -194,7 +194,7 @@ void _ZNK14PrePostChecker24printThisSymbolUsingFuncEv(const PrePostChecker *cons
 void _ZNK14PrePostChecker23printThisSymbolDirectlyEv(const PrePostChecker *const);
 
 /*void printDollarSymbolByCastUsingFunc() const;*/
-void  _ZNK14PrePostChecker32printDollarSymbolByCastUsingFuncEv(const PrePostChecker *const);
+void  _ZNK14PrePostChecker32printDollarSymbolByCastUsingFuncEv(PrePostChecker *const);
 
 /*void printDollarSymbolByScopeUsingFunc() const;*/
 void _ZNK14PrePostChecker33printDollarSymbolByScopeUsingFuncEv(const PrePostChecker *const);
@@ -229,5 +229,5 @@ int _ZTI10Multiplier0getTimes(const Multiplier *const);
 /*void setTimes(int);*/
 int _ZTI10Multiplier0setTimes(const Multiplier *const);
 
-#endif // __CPP2C_POLYMORPHISM_H__
+#endif /* __CPP2C_POLYMORPHISM_H__*/
 
